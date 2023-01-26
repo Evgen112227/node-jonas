@@ -10,12 +10,15 @@ const app = express();
 
 //express.json() - middleware(it stands in the middle of the request and response). It is just a function that can modify incoming request data
 //it is just a step that request goes through while its being processed
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 //this middleware adds:
 //2023-01-24T11:37:45.224Z
 //GET /api/v1/tours 200 2.509 ms - 8555
 
 app.use(express.json());
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   console.log('Hello from MW🤪');
