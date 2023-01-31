@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -21,11 +23,6 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
-  console.log('Hello from MW🤪');
-  next();
-});
-
-app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
@@ -40,5 +37,13 @@ app.use((req, res, next) => {
 //to use middleware tourRouter for this specific route /api/v1/tours
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+//if not handled by any:
+app.all('*', (req, res, next) => {
+  next(new AppError(`Cant find ${req.originalUrl}`, 404));
+});
+
+//error handling middleware function by specifying 4 parameters
+app.use(globalErrorHandler);
 
 module.exports = app;
